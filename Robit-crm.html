@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CRM — סוכנות דיגיטל</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;direction:rtl;min-height:100vh}
+/* topbar */
+.topbar{background:#1d2b4f;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.topbar h1{font-size:17px;color:#fff;font-weight:700}
+.topbar .sub{font-size:11px;color:#8fa3c8;margin-top:1px}
+.top-actions{display:flex;gap:8px}
+/* buttons */
+.btn{border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;font-family:Arial,sans-serif;border:1px solid transparent;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-white{background:#fff;color:#1d2b4f;border-color:#ddd}
+.btn-blue{background:#2563eb;color:#fff}
+.btn-green{background:#16a34a;color:#fff}
+.btn-red{background:#dc2626;color:#fff}
+.btn-orange{background:#ea580c;color:#fff}
+.btn-gray{background:#6b7280;color:#fff}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+/* main */
+.main{padding:20px 24px;max-width:1300px;margin:0 auto}
+/* alerts bar */
+.alerts-bar{background:#fff;border:1px solid #fde68a;border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.alert-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#92400e;background:#fef3c7;padding:3px 10px;border-radius:20px;font-weight:600}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:#fff;border-radius:10px;padding:14px 16px;border:1px solid #e8e8e8}
+.stat .lbl{font-size:11px;color:#888;margin-bottom:4px}
+.stat .val{font-size:22px;font-weight:700}
+.stat .val.green{color:#16a34a}
+.stat .val.orange{color:#ea580c}
+.stat .val.red{color:#dc2626}
+.stat .val.blue{color:#2563eb}
+.stat .trend{font-size:11px;color:#888;margin-top:2px}
+/* filters */
+.filters{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.filters input,.filters select{padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fff;color:#1a1a1a;font-family:Arial,sans-serif}
+.filters input{flex:1;min-width:180px}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px;cursor:pointer;transition:box-shadow .15s,border-color .15s}
+.card:hover{box-shadow:0 3px 14px rgba(0,0,0,.09);border-color:#bbb}
+.card.warn{border-color:#f59e0b;border-left:4px solid #f59e0b}
+.card.danger{border-color:#dc2626;border-left:4px solid #dc2626}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.av-b{background:#dbeafe;color:#1e40af}
+.av-t{background:#d1fae5;color:#065f46}
+.av-p{background:#ede9fe;color:#5b21b6}
+.av-c{background:#fee2e2;color:#991b1b}
+.av-g{background:#dcfce7;color:#14532d}
+.cname{font-size:14px;font-weight:700;line-height:1.3}
+.cagent{font-size:12px;color:#666}
+.health-bar-wrap{margin:8px 0 10px;background:#f0f0f0;border-radius:20px;height:6px;overflow:hidden}
+.health-bar{height:6px;border-radius:20px;transition:width .3s}
+.badges{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.bs{background:#dbeafe;color:#1e40af}
+.be{background:#ede9fe;color:#5b21b6}
+.bp{background:#d1fae5;color:#065f46}
+.bw{background:#fef3c7;color:#92400e}
+.cmeta{display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:12px;border-top:1px solid #f0f0f0;padding-top:9px}
+.ml{color:#999;font-size:11px}
+.mv{font-weight:600;font-size:13px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-left:4px}
+.dg{background:#16a34a}.do{background:#ea580c}.dr{background:#dc2626}
+.card-actions{display:flex;gap:6px;margin-top:10px;border-top:1px solid #f5f5f5;padding-top:10px}
+/* overlay / modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:flex-start;justify-content:center;padding:1.5rem 1rem;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:720px;padding:0;margin:auto;overflow:hidden}
+.modal-top{background:#1d2b4f;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.modal-top h2{font-size:16px;color:#fff;font-weight:700}
+.xbtn{background:transparent;border:none;cursor:pointer;font-size:18px;color:#aaa;padding:2px 6px}
+.modal-body{padding:20px}
+.tabs{display:flex;gap:0;border-bottom:2px solid #f0f0f0;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:9px 14px;font-size:13px;cursor:pointer;border:none;background:transparent;border-bottom:3px solid transparent;color:#666;font-family:Arial,sans-serif;font-weight:600;margin-bottom:-2px}
+.tab.on{color:#2563eb;border-bottom-color:#2563eb}
+.tc{display:none}.tc.on{display:block}
+/* form elements */
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ir{margin-bottom:10px}
+.ir label{display:block;font-size:11px;color:#888;margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.ir .v{font-size:14px;font-weight:600}
+.ir .v a{color:#2563eb;text-decoration:none}
+.st{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.6px;margin:14px 0 7px}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#f8f9fa;border-radius:8px;margin-bottom:5px;font-size:13px}
+.pay-box{background:#f8f9fa;border-radius:10px;padding:12px;margin-bottom:10px;border:1px solid #e8e8e8}
+.log-item{padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.log-item:last-child{border-bottom:none}
+.log-date{font-size:11px;color:#999;margin-top:2px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:12px;color:#555;font-weight:700}
+.fg input,.fg select,.fg textarea{padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fff;color:#1a1a1a;font-family:Arial,sans-serif}
+.fg textarea{resize:vertical}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12px;padding:4px 10px;border:1px solid #ddd;border-radius:20px;cursor:pointer;background:#fff;transition:all .15s}
+.tag.on{background:#dbeafe;color:#1e40af;border-color:#93c5fd}
+.mfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem;padding-top:.75rem;border-top:1px solid #f0f0f0}
+.divider{height:1px;background:#f0f0f0;margin:12px 0}
+.link-chip{display:inline-flex;align-items:center;gap:5px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:20px;padding:3px 10px;font-size:12px;color:#1e40af;text-decoration:none}
+/* ROI */
+.roi-box{background:linear-gradient(135deg,#1d2b4f,#2563eb);border-radius:12px;padding:16px;color:#fff;margin-bottom:14px}
+.roi-box .roi-title{font-size:12px;opacity:.8;margin-bottom:4px}
+.roi-big{font-size:32px;font-weight:700;margin-bottom:2px}
+.roi-sub{font-size:12px;opacity:.7}
+.roi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+.roi-cell{background:rgba(255,255,255,.12);border-radius:8px;padding:8px 10px;text-align:center}
+.roi-cell .rc-lbl{font-size:10px;opacity:.7;margin-bottom:3px}
+.roi-cell .rc-val{font-size:16px;font-weight:700}
+.roi-input-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+/* campaign */
+.camp-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f8f9fa;border-radius:8px;margin-bottom:6px;font-size:13px;flex-wrap:wrap}
+.camp-row .camp-name{font-weight:700;flex:1;min-width:80px}
+.plat-badge{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.plat-google{background:#fef3c7;color:#92400e}
+.plat-meta{background:#dbeafe;color:#1e40af}
+.plat-tiktok{background:#fce7f3;color:#9d174d}
+.plat-linkedin{background:#e0f2fe;color:#0369a1}
+.plat-other{background:#f3f4f6;color:#374151}
+/* health score */
+.health-score-big{font-size:48px;font-weight:700;text-align:center;margin:8px 0 4px}
+.health-checks{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.health-check{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;font-size:13px}
+.health-check.pass{background:#f0fdf4;color:#166534}
+.health-check.fail{background:#fef2f2;color:#991b1b}
+.health-check.warn{background:#fffbeb;color:#92400e}
+/* timeline */
+.timeline-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0}
+.timeline-item:last-child{border-bottom:none}
+.tl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-content{flex:1}
+.tl-date{font-size:11px;color:#999}
+/* quote */
+.quote-area{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:Arial,sans-serif;line-height:1.7;min-height:200px;resize:vertical;background:#fafafa;color:#1a1a1a}
+/* mobile */
+@media(max-width:600px){
+  .topbar{padding:10px 14px}
+  .top-actions .btn{padding:6px 8px;font-size:11px}
+  .main{padding:12px 12px}
+  .stats{grid-template-columns:1fr 1fr;gap:8px}
+  .stat{padding:10px 12px}
+  .stat .val{font-size:18px}
+  .filters{flex-direction:column;gap:8px}
+  .filters input,.filters select{min-width:unset;width:100%}
+  .grid{grid-template-columns:1fr;gap:12px}
+  .card{padding:12px}
+  .modal{border-radius:12px 12px 0 0;position:fixed;bottom:0;left:0;right:0;margin:0;max-width:100%;max-height:92vh;overflow-y:auto}
+  .overlay{padding:0;align-items:flex-end}
+  .ig{grid-template-columns:1fr}
+  .fgrid{grid-template-columns:1fr}
+  .roi-grid{grid-template-columns:1fr 1fr}
+  .roi-input-row{grid-template-columns:1fr}
+  .mfoot{flex-wrap:wrap}
+  .mfoot .btn{flex:1;text-align:center}
+  .card-actions{flex-wrap:wrap}
+  .card-actions .btn{flex:1;text-align:center;font-size:11px;padding:6px 8px}
+  .tabs{overflow-x:auto;flex-wrap:nowrap}
+  .tab{white-space:nowrap;flex-shrink:0}
+}
+/* print / pdf */
+@media print{
+  .topbar,.filters,.card-actions,.btn,.tabs,.overlay{display:none!important}
+  body{background:#fff}
+  .main{padding:0}
+  .card{break-inside:avoid;border:1px solid #ddd;margin-bottom:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar h1" style="font-size:17px;color:#fff;font-weight:700">CRM — סוכנות דיגיטל</div>
+    <div class="sub">ניהול לקוחות מקצועי</div>
+  </div>
+  <div class="top-actions">
+    <button class="btn btn-gray btn-sm" onclick="exportAllPDF()">ייצוא PDF</button>
+    <button class="btn btn-white btn-sm" onclick="openNew()">+ לקוח חדש</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="alerts-bar" id="alertsBar" style="display:none"></div>
+  <div class="stats" id="statsEl"></div>
+  <div class="filters">
+    <input type="text" placeholder="חיפוש לקוח, איש קשר..." id="srch" oninput="render()"/>
+    <select id="fSvc" onchange="render()">
+      <option value="">כל השירותים</option>
+      <option>PPC</option><option>SEO</option><option>Social</option>
+      <option>Reputation</option><option>בניית אתר</option><option>ייעוץ</option>
+    </select>
+    <select id="fPay" onchange="render()">
+      <option value="">כל הסטטוסים</option>
+      <option value="שולם">שולם</option><option value="ממתין">ממתין</option><option value="בפיגור">בפיגור</option>
+    </select>
+    <select id="fHealth" onchange="render()">
+      <option value="">כל הציונים</option>
+      <option value="high">בריאות גבוהה (80+)</option>
+      <option value="mid">בינוני (50-79)</option>
+      <option value="low">נמוך (מתחת 50)</option>
+    </select>
+  </div>
+  <div class="grid" id="gridEl"></div>
+</div>
+
+<!-- View Modal -->
+<div class="overlay" id="viewOv">
+<div class="modal">
+  <div class="modal-top">
+    <h2 id="vtitle">לקוח</h2>
+    <button class="xbtn" onclick="closeOv('viewOv')">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="tabs">
+      <button class="tab on" onclick="swTab('info',this)">פרטים</button>
+      <button class="tab" onclick="swTab('services',this)">שירותים</button>
+      <button class="tab" onclick="swTab('campaigns',this)">קמפיינים</button>
+      <button class="tab" onclick="swTab('roi',this)">ROI</button>
+      <button class="tab" onclick="swTab('payments',this)">תשלומים</button>
+      <button class="tab" onclick="swTab('log',this)">לוג</button>
+      <button class="tab" onclick="swTab('health',this)">בריאות</button>
+      <button class="tab" onclick="swTab('quote',this)">הצעת מחיר</button>
+    </div>
+    <div id="tc-info" class="tc on"></div>
+    <div id="tc-services" class="tc"></div>
+    <div id="tc-campaigns" class="tc"></div>
+    <div id="tc-roi" class="tc"></div>
+    <div id="tc-payments" class="tc"></div>
+    <div id="tc-log" class="tc"></div>
+    <div id="tc-health" class="tc"></div>
+    <div id="tc-quote" class="tc"></div>
+  </div>
+</div>
+</div>
+
+<!-- New Client Modal -->
+<div class="overlay" id="newOv">
+<div class="modal">
+  <div class="modal-top"><h2>לקוח חדש</h2><button class="xbtn" onclick="closeOv('newOv')">✕</button></div>
+  <div class="modal-body">
+    <div class="fgrid">
+      <div class="fg"><label>שם עסק *</label><input id="nn" placeholder="שם החברה"/></div>
+      <div class="fg"><label>איש קשר *</label><input id="nc" placeholder="שם מלא"/></div>
+      <div class="fg"><label>טלפון</label><input id="nph" placeholder="050-0000000"/></div>
+      <div class="fg"><label>אימייל</label><input id="nem" placeholder="email@co.il"/></div>
+      <div class="fg"><label>כתובת</label><input id="nad" placeholder="רחוב, עיר"/></div>
+      <div class="fg"><label>אתר אינטרנט</label><input id="nweb" placeholder="https://www.example.co.il"/></div>
+      <div class="fg"><label>ח.פ / עוסק מורשה</label><input id="nbn" placeholder="512345678"/></div>
+      <div class="fg"><label>ערוץ הגעה</label>
+        <select id="nsrc"><option value="">בחר...</option><option>פה לפה</option><option>גוגל</option><option>פייסבוק</option><option>לינקדאין</option><option>קר / outbound</option><option>אחר</option></select>
+      </div>
+      <div class="fg"><label>סוכן אחראי</label>
+        <select id="nag"><option>אני</option><option>דניאל</option><option>שירה</option><option>אחר</option></select>
+      </div>
+      <div class="fg"><label>תחילת התקשרות</label><input type="date" id="nst"/></div>
+      <div class="fg"><label>סיום / חידוש חוזה</label><input type="date" id="nen"/></div>
+      <div class="fg"><label>יום הולדת איש קשר</label><input type="date" id="nbday"/></div>
+      <div class="fg"><label>סכום חודשי (₪)</label><input type="number" id="nam" placeholder="0"/></div>
+      <div class="fg"><label>סטטוס תשלום</label>
+        <select id="nps"><option value="שולם">שולם</option><option value="ממתין">ממתין</option><option value="בפיגור">בפיגור</option></select>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:12px"><label>שירותים פעילים</label>
+      <div class="tags" id="nsvcs">
+        <span class="tag" onclick="tog(this)">PPC</span><span class="tag" onclick="tog(this)">SEO</span>
+        <span class="tag" onclick="tog(this)">Social</span><span class="tag" onclick="tog(this)">Reputation</span>
+        <span class="tag" onclick="tog(this)">בניית אתר</span><span class="tag" onclick="tog(this)">ייעוץ</span>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:10px"><label>סוג התקשרות</label>
+      <div class="tags" id="neng">
+        <span class="tag" onclick="tog(this)">ליווי שוטף</span><span class="tag" onclick="tog(this)">תפעול</span>
+        <span class="tag" onclick="tog(this)">ייעוץ</span><span class="tag" onclick="tog(this)">הקמה חד-פעמית</span>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:10px"><label>מודל תשלום</label>
+      <div class="tags" id="npay">
+        <span class="tag" onclick="tog(this)">Retainer</span><span class="tag" onclick="tog(this)">CPA</span>
+        <span class="tag" onclick="tog(this)">פרויקטלי</span><span class="tag" onclick="tog(this)">קבלנות</span>
+      </div>
+    </div>
+    <div class="fg" style="margin-top:10px"><label>הערות</label>
+      <textarea id="nnt" rows="2" placeholder="הערות חופשיות..."></textarea>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gray" onclick="closeOv('newOv')">ביטול</button>
+      <button class="btn btn-blue" onclick="saveNew()">שמור לקוח</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const AVC=['av-b','av-t','av-p','av-c','av-g'];
+function ini(n){return(n||'').split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase()}
+function days(d){if(!d)return 9999;return Math.ceil((new Date(d)-new Date())/(864e5))}
+function tenure(d){if(!d)return '—';const m=Math.floor((Date.now()-new Date(d))/(864e5*30));return m>=12?Math.floor(m/12)+' שנים':m+' ח׳'}
+function fdate(d){return d?d.split('-').reverse().join('/'):'—'}
+function dotCls(s){return s==='שולם'?'dg':s==='ממתין'?'do':'dr'}
+function platCls(p){const m={גוגל:'plat-google','Google Ads':'plat-google',מטא:'plat-meta','Meta Ads':'plat-meta','Facebook':'plat-meta',טיקטוק:'plat-tiktok','TikTok':'plat-tiktok',לינקדאין:'plat-linkedin','LinkedIn':'plat-linkedin'};return m[p]||'plat-other'}
+
+function healthScore(c){
+  let s=0,checks=[];
+  if(c.pstatus==='שולם'){s+=25;checks.push({ok:true,txt:'תשלום עדכני'})}
+  else if(c.pstatus==='ממתין'){s+=10;checks.push({ok:'warn',txt:'ממתין לתשלום'})}
+  else{checks.push({ok:false,txt:'בפיגור תשלום'})}
+  if(c.end&&days(c.end)>30){s+=20;checks.push({ok:true,txt:'חוזה תקף'})}
+  else if(c.end&&days(c.end)>0){s+=8;checks.push({ok:'warn',txt:'חידוש חוזה בקרוב'})}
+  else{checks.push({ok:false,txt:'חוזה פג / לא הוגדר'})}
+  if(c.log&&c.log.length>0){
+    const last=new Date(c.log[0].d);const diff=(Date.now()-last)/(864e5);
+    if(diff<=30){s+=20;checks.push({ok:true,txt:'פעילות מתועדת ב-30 יום אחרונים'})}
+    else{s+=5;checks.push({ok:'warn',txt:'אין פעילות מעל 30 יום'})}
+  }else{checks.push({ok:false,txt:'אין לוג פעילות'})}
+  if(c.svcs&&c.svcs.length>0){s+=15;checks.push({ok:true,txt:'שירותים מוגדרים'})}
+  else{checks.push({ok:false,txt:'אין שירותים מוגדרים'})}
+  if(c.roi&&c.roi.mediaSpend&&c.roi.revenue){
+    const r=calcROI(c.roi);
+    if(r>=100){s+=20;checks.push({ok:true,txt:'ROI חיובי ('+r+'%)'})}
+    else{s+=5;checks.push({ok:'warn',txt:'ROI נמוך ('+r+'%)'})}
+  }else{checks.push({ok:'warn',txt:'ROI לא חושב'})}
+  return{score:Math.min(s,100),checks};
+}
+
+function calcROI(roi){
+  if(!roi||!roi.mediaSpend||!roi.revenue)return 0;
+  const cost=(Number(roi.mediaSpend)||0)+(Number(roi.agencyCost)||0);
+  const rev=Number(roi.revenue)||0;
+  if(cost===0)return 0;
+  return Math.round(((rev-cost)/cost)*100);
+}
+
+function healthColor(s){return s>=80?'#16a34a':s>=50?'#ea580c':'#dc2626'}
+
+const DEFAULT=[
+  {id:1,name:'אילנית הדברות בע"מ',contact:'',phone:'',email:'',address:'',website:'',biznum:'',source:'',bday:'',agent:'אני',start:'',end:'',svcs:[],eng:[],pay:[],amount:0,pstatus:'ממתין',notes:'',color:'av-b',log:[],payments:[],campaigns:[],roi:{mediaSpend:'',agencyCost:'',revenue:'',leads:'',avgDeal:''}},
+  {id:2,name:'רום שינוע בע"מ',contact:'',phone:'',email:'',address:'',website:'',biznum:'',source:'',bday:'',agent:'אני',start:'',end:'',svcs:[],eng:[],pay:[],amount:0,pstatus:'ממתין',notes:'',color:'av-t',log:[],payments:[],campaigns:[],roi:{mediaSpend:'',agencyCost:'',revenue:'',leads:'',avgDeal:''}}
+];
+
+let clients = JSON.parse(JSON.stringify(DEFAULT));
+let _saveTimeout = null;
+let _ignoreNext = false;
+
+// ── Firebase Setup ──
+import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js').then(({initializeApp})=>{
+  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(({getFirestore,doc,setDoc,onSnapshot})=>{
+    const firebaseConfig = {
+      apiKey: "AIzaSyD7G1BmHGq_eAF8tSuv68LArR6luKHuVKM",
+      authDomain: "robitc.firebaseapp.com",
+      projectId: "robitc",
+      storageBucket: "robitc.firebasestorage.app",
+      messagingSenderId: "185301314302",
+      appId: "1:185301314302:web:cf35c8156bd6e6351413af",
+      measurementId: "G-WV2KZE40TX"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const CRM_DOC = doc(db, "crm2", "main");
+
+    onSnapshot(CRM_DOC, (snap)=>{
+      if(snap.exists()){
+        if(_ignoreNext){_ignoreNext=false;return;}
+        clients = snap.data().clients || JSON.parse(JSON.stringify(DEFAULT));
+        render();
+      }
+    });
+
+    window._firestoreSetDoc = (data)=>{ _ignoreNext=true; return setDoc(CRM_DOC,{clients:data}); };
+  });
+});
+
+function save(){
+  if(_saveTimeout) clearTimeout(_saveTimeout);
+  _saveTimeout = setTimeout(()=>{
+    if(window._firestoreSetDoc) window._firestoreSetDoc(clients).catch(console.error);
+  },600);
+}
+function load(){}
+
+// migrate old data
+clients.forEach(c=>{
+  if(!c.campaigns)c.campaigns=[];
+  if(!c.roi)c.roi={mediaSpend:'',agencyCost:'',revenue:'',leads:'',avgDeal:''};
+  if(!c.website)c.website='';
+  if(!c.biznum)c.biznum='';
+  if(!c.source)c.source='';
+  if(!c.bday)c.bday='';
+  if(!c.payments)c.payments=[];
+  if(!c.log)c.log=[];
+});
+
+function renderAlerts(){
+  const bar=document.getElementById('alertsBar');
+  const items=[];
+  clients.forEach(c=>{
+    if(c.pstatus==='בפיגור')items.push('תשלום בפיגור: '+c.name);
+    if(c.end&&days(c.end)<=30&&days(c.end)>0)items.push('חידוש חוזה בקרוב: '+c.name+' ('+days(c.end)+' ימים)');
+    if(c.log&&c.log.length>0){const diff=(Date.now()-new Date(c.log[0].d))/(864e5);if(diff>45)items.push('אין פעילות מ-'+Math.floor(diff)+' יום: '+c.name)}
+    if(c.bday){const bd=new Date(c.bday);const now=new Date();bd.setFullYear(now.getFullYear());const d2=Math.ceil((bd-now)/(864e5));if(d2>=0&&d2<=7)items.push('יום הולדת עוד '+d2+' ימים: '+c.contact+' ('+c.name+')')}
+  });
+  if(items.length){
+    bar.style.display='flex';
+    bar.innerHTML='<span style="font-size:12px;font-weight:700;color:#92400e">התראות:</span>'+items.map(i=>`<span class="alert-item">${i}</span>`).join('');
+  }else{bar.style.display='none'}
+}
+
+function renderStats(){
+  const t=clients.length;
+  const paid=clients.filter(c=>c.pstatus==='שולם').length;
+  const pend=clients.filter(c=>c.pstatus!=='שולם').length;
+  const rev=clients.reduce((s,c)=>s+(Number(c.amount)||0),0);
+  const renew=clients.filter(c=>days(c.end)<=30&&days(c.end)>0).length;
+  const avgH=clients.length?Math.round(clients.reduce((s,c)=>s+healthScore(c).score,0)/clients.length):0;
+  document.getElementById('statsEl').innerHTML=`
+    <div class="stat"><div class="lbl">לקוחות פעילים</div><div class="val blue">${t}</div></div>
+    <div class="stat"><div class="lbl">שולמו החודש</div><div class="val green">${paid}</div></div>
+    <div class="stat"><div class="lbl">ממתינים / בפיגור</div><div class="val orange">${pend}</div></div>
+    <div class="stat"><div class="lbl">הכנסה חודשית</div><div class="val">₪${rev.toLocaleString()}</div></div>
+    <div class="stat"><div class="lbl">חידוש בקרוב</div><div class="val red">${renew}</div></div>
+    <div class="stat"><div class="lbl">בריאות ממוצעת</div><div class="val" style="color:${healthColor(avgH)}">${avgH}%</div><div class="trend">מכלל הלקוחות</div></div>`;
+}
+
+function render(){
+  renderAlerts();renderStats();
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const fs=document.getElementById('fSvc').value;
+  const fp=document.getElementById('fPay').value;
+  const fh=document.getElementById('fHealth').value;
+  const list=clients.filter(c=>{
+    if(q&&!(c.name||'').toLowerCase().includes(q)&&!(c.contact||'').toLowerCase().includes(q))return false;
+    if(fs&&!(c.svcs||[]).includes(fs))return false;
+    if(fp&&c.pstatus!==fp)return false;
+    if(fh){const h=healthScore(c).score;if(fh==='high'&&h<80)return false;if(fh==='mid'&&(h<50||h>=80))return false;if(fh==='low'&&h>=50)return false}
+    return true;
+  });
+  document.getElementById('gridEl').innerHTML=list.map(c=>{
+    const al=days(c.end)<=30&&days(c.end)>0;
+    const late=c.pstatus==='בפיגור';
+    const hs=healthScore(c);
+    const roi=calcROI(c.roi);
+    return`<div class="card${late?' danger':al?' warn':''}" onclick="openView(${c.id})">
+      <div class="card-head">
+        <div class="av ${c.color||'av-b'}">${ini(c.name)}</div>
+        <div style="flex:1">
+          <div class="cname">${c.name}</div>
+          <div class="cagent">${c.contact||'ללא איש קשר'} · ${c.agent||'—'}</div>
+        </div>
+        <div style="text-align:left">
+          <div style="font-size:20px;font-weight:700;color:${healthColor(hs.score)}">${hs.score}</div>
+          <div style="font-size:10px;color:#999">בריאות</div>
+        </div>
+      </div>
+      <div class="health-bar-wrap"><div class="health-bar" style="width:${hs.score}%;background:${healthColor(hs.score)}"></div></div>
+      <div class="badges">
+        ${(c.svcs||[]).map(s=>`<span class="badge bs">${s}</span>`).join('')||'<span style="font-size:11px;color:#ccc">אין שירותים</span>'}
+        ${(c.pay||[]).map(p=>`<span class="badge bp">${p}</span>`).join('')}
+        ${roi!==0?`<span class="badge bw">ROI ${roi}%</span>`:''}
+      </div>
+      <div class="cmeta">
+        <div><div class="ml">תשלום חודשי</div><div class="mv">₪${(Number(c.amount)||0).toLocaleString()}</div></div>
+        <div><div class="ml">סטטוס</div><div class="mv"><span class="dot ${dotCls(c.pstatus)}"></span>${c.pstatus}</div></div>
+        <div><div class="ml">ותק</div><div class="mv">${tenure(c.start)}</div></div>
+        <div><div class="ml">חוזה עד</div><div class="mv">${fdate(c.end)}${al?' ⚠':''}</div></div>
+      </div>
+      <div class="card-actions" onclick="event.stopPropagation()">
+        <button class="btn btn-blue btn-xs" onclick="openView(${c.id});setTimeout(()=>swTabById('payments'),100)">תשלומים</button>
+        <button class="btn btn-green btn-xs" onclick="openView(${c.id});setTimeout(()=>swTabById('log'),100)">+ לוג</button>
+        <button class="btn btn-gray btn-xs" onclick="exportClientPDF(${c.id})">PDF</button>
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:#aaa;font-size:14px;padding:20px">לא נמצאו לקוחות</div>';
+}
+
+function openView(id){
+  const c=clients.find(x=>x.id===id);
+  document.getElementById('vtitle').textContent=c.name;
+  document.querySelectorAll('.tabs .tab').forEach((t,i)=>t.classList.toggle('on',i===0));
+  document.querySelectorAll('.tc').forEach((t,i)=>t.classList.toggle('on',i===0));
+  buildInfo(c);buildServices(c);buildCampaigns(c);buildROI(c);buildPayments(c);buildLog(c);buildHealth(c);buildQuote(c);
+  document.getElementById('viewOv').classList.add('open');
+}
+
+function swTabById(name){
+  document.querySelectorAll('.tabs .tab').forEach(t=>{t.classList.toggle('on',t.getAttribute('onclick').includes("'"+name+"'"))});
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));
+  const el=document.getElementById('tc-'+name);if(el)el.classList.add('on');
+}
+
+function buildInfo(c){
+  document.getElementById('tc-info').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+      <div class="av ${c.color||'av-b'}" style="width:54px;height:54px;font-size:17px">${ini(c.name)}</div>
+      <div>
+        <div style="font-size:17px;font-weight:700">${c.name}</div>
+        <div style="font-size:13px;color:#888">${c.contact||'ללא איש קשר'}</div>
+        ${c.website?`<a href="${c.website}" target="_blank" style="font-size:12px;color:#2563eb">${c.website}</a>`:''}
+      </div>
+    </div>
+    <div class="ig">
+      <div class="ir"><label>טלפון</label><div class="v">${c.phone||'—'}</div></div>
+      <div class="ir"><label>אימייל</label><div class="v">${c.email||'—'}</div></div>
+      <div class="ir"><label>כתובת</label><div class="v">${c.address||'—'}</div></div>
+      <div class="ir"><label>ח.פ / עוסק מורשה</label><div class="v">${c.biznum||'—'}</div></div>
+      <div class="ir"><label>ערוץ הגעה</label><div class="v">${c.source||'—'}</div></div>
+      <div class="ir"><label>יום הולדת איש קשר</label><div class="v">${fdate(c.bday)}</div></div>
+      <div class="ir"><label>סוכן אחראי</label><div class="v">${c.agent||'—'}</div></div>
+      <div class="ir"><label>תחילת התקשרות</label><div class="v">${fdate(c.start)}</div></div>
+      <div class="ir"><label>סיום חוזה</label><div class="v">${fdate(c.end)}</div></div>
+      <div class="ir"><label>ותק לקוח</label><div class="v">${tenure(c.start)}</div></div>
+      <div class="ir"><label>סטטוס תשלום</label><div class="v"><span class="dot ${dotCls(c.pstatus)}"></span>${c.pstatus}</div></div>
+      <div class="ir"><label>סכום חודשי</label><div class="v">₪${(Number(c.amount)||0).toLocaleString()}</div></div>
+    </div>
+    ${c.notes?`<div class="ir" style="margin-top:6px"><label>הערות</label><div class="v">${c.notes}</div></div>`:''}
+    <div class="divider"></div>
+    <div style="font-size:12px;color:#888;margin-bottom:10px;font-weight:700">עריכת פרטים</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div class="fg"><label>טלפון</label><input id="ei-ph-${c.id}" value="${c.phone||''}"/></div>
+      <div class="fg"><label>אימייל</label><input id="ei-em-${c.id}" value="${c.email||''}"/></div>
+      <div class="fg"><label>איש קשר</label><input id="ei-ct-${c.id}" value="${c.contact||''}"/></div>
+      <div class="fg"><label>כתובת</label><input id="ei-ad-${c.id}" value="${c.address||''}"/></div>
+      <div class="fg"><label>אתר אינטרנט</label><input id="ei-web-${c.id}" value="${c.website||''}" placeholder="https://..."/></div>
+      <div class="fg"><label>ח.פ / עוסק מורשה</label><input id="ei-bn-${c.id}" value="${c.biznum||''}"/></div>
+      <div class="fg"><label>ערוץ הגעה</label>
+        <select id="ei-src-${c.id}">
+          <option value="">בחר...</option>
+          ${['פה לפה','גוגל','פייסבוק','לינקדאין','קר / outbound','אחר'].map(s=>`<option ${c.source===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label>יום הולדת</label><input type="date" id="ei-bday-${c.id}" value="${c.bday||''}"/></div>
+      <div class="fg"><label>תחילת</label><input type="date" id="ei-st-${c.id}" value="${c.start||''}"/></div>
+      <div class="fg"><label>סיום חוזה</label><input type="date" id="ei-en-${c.id}" value="${c.end||''}"/></div>
+      <div class="fg"><label>סכום חודשי (₪)</label><input type="number" id="ei-am-${c.id}" value="${c.amount||''}"/></div>
+      <div class="fg"><label>סטטוס תשלום</label>
+        <select id="ei-ps-${c.id}">
+          <option ${c.pstatus==='שולם'?'selected':''}>שולם</option>
+          <option ${c.pstatus==='ממתין'?'selected':''}>ממתין</option>
+          <option ${c.pstatus==='בפיגור'?'selected':''}>בפיגור</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:10px"><label>הערות</label><textarea id="ei-nt-${c.id}" rows="2">${c.notes||''}</textarea></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-blue btn-sm" onclick="saveInfo(${c.id})">שמור שינויים</button>
+      <button class="btn btn-red btn-sm" onclick="deleteClient(${c.id})">מחק לקוח</button>
+      <span id="ei-msg-${c.id}" style="font-size:12px;color:#16a34a"></span>
+    </div>`;
+}
+
+function saveInfo(id){
+  const c=clients.find(x=>x.id===id);
+  c.phone=document.getElementById('ei-ph-'+id).value;
+  c.email=document.getElementById('ei-em-'+id).value;
+  c.contact=document.getElementById('ei-ct-'+id).value;
+  c.address=document.getElementById('ei-ad-'+id).value;
+  c.website=document.getElementById('ei-web-'+id).value;
+  c.biznum=document.getElementById('ei-bn-'+id).value;
+  c.source=document.getElementById('ei-src-'+id).value;
+  c.bday=document.getElementById('ei-bday-'+id).value;
+  c.start=document.getElementById('ei-st-'+id).value;
+  c.end=document.getElementById('ei-en-'+id).value;
+  c.amount=Number(document.getElementById('ei-am-'+id).value)||0;
+  c.pstatus=document.getElementById('ei-ps-'+id).value;
+  c.notes=document.getElementById('ei-nt-'+id).value;
+  save();render();
+  const msg=document.getElementById('ei-msg-'+id);
+  if(msg){msg.textContent='נשמר!';setTimeout(()=>{if(msg)msg.textContent=''},2000)}
+}
+
+function deleteClient(id){
+  if(!confirm('למחוק לקוח זה לצמיתות?'))return;
+  clients=clients.filter(x=>x.id!==id);
+  save();render();closeOv('viewOv');
+}
+
+function buildServices(c){
+  const svcRows=(c.svcs||[]).length
+    ?c.svcs.map(s=>`<div class="srow"><span style="font-weight:700">${s}</span><span class="badge be">${(c.eng||['—'])[0]}</span></div>`).join('')
+    :'<div style="color:#aaa;font-size:13px;padding:8px">אין שירותים</div>';
+  const payRows=(c.pay||[]).length
+    ?c.pay.map(p=>`<div class="srow"><span>${p}</span><span style="font-weight:700">₪${(Number(c.amount)||0).toLocaleString()} / חודש</span></div>`).join('')
+    :'<div style="color:#aaa;font-size:13px;padding:8px">אין מודל תשלום</div>';
+  document.getElementById('tc-services').innerHTML=`
+    <div class="st">שירותים פעילים</div>${svcRows}
+    <div class="st" style="margin-top:14px">מודל תשלום</div>${payRows}
+    <div class="divider"></div>
+    <div class="fg" style="margin-bottom:8px"><label>שירותים</label>
+      <div class="tags" id="es-svcs-${c.id}">${['PPC','SEO','Social','Reputation','בניית אתר','ייעוץ'].map(s=>`<span class="tag${(c.svcs||[]).includes(s)?' on':''}" onclick="tog(this)">${s}</span>`).join('')}</div>
+    </div>
+    <div class="fg" style="margin-bottom:8px"><label>סוג התקשרות</label>
+      <div class="tags" id="es-eng-${c.id}">${['ליווי שוטף','תפעול','ייעוץ','הקמה חד-פעמית'].map(e=>`<span class="tag${(c.eng||[]).includes(e)?' on':''}" onclick="tog(this)">${e}</span>`).join('')}</div>
+    </div>
+    <div class="fg" style="margin-bottom:10px"><label>מודל תשלום</label>
+      <div class="tags" id="es-pay-${c.id}">${['Retainer','CPA','פרויקטלי','קבלנות'].map(p=>`<span class="tag${(c.pay||[]).includes(p)?' on':''}" onclick="tog(this)">${p}</span>`).join('')}</div>
+    </div>
+    <button class="btn btn-blue btn-sm" onclick="saveServices(${c.id})">שמור שירותים</button>
+    <span id="es-msg-${c.id}" style="font-size:12px;color:#16a34a;margin-right:8px"></span>`;
+}
+
+function saveServices(id){
+  const c=clients.find(x=>x.id===id);
+  c.svcs=[...document.querySelectorAll(`#es-svcs-${id} .tag.on`)].map(t=>t.textContent);
+  c.eng=[...document.querySelectorAll(`#es-eng-${id} .tag.on`)].map(t=>t.textContent);
+  c.pay=[...document.querySelectorAll(`#es-pay-${id} .tag.on`)].map(t=>t.textContent);
+  save();render();buildServices(c);
+  const msg=document.getElementById('es-msg-'+id);
+  if(msg){msg.textContent='נשמר!';setTimeout(()=>{if(msg)msg.textContent=''},2000)}
+}
+
+function buildCampaigns(c){
+  const rows=(c.campaigns||[]).map((camp,i)=>`
+    <div class="camp-row">
+      <span class="camp-name">${camp.name}</span>
+      <span class="plat-badge ${platCls(camp.platform)}">${camp.platform}</span>
+      <span style="font-size:12px">₪${(Number(camp.budget)||0).toLocaleString()}/חודש</span>
+      <span class="badge ${camp.status==='פעיל'?'bp':camp.status==='מושהה'?'bw':'bs'}">${camp.status}</span>
+      <span style="font-size:11px;color:#999">${fdate(camp.startDate)}</span>
+      <button class="btn btn-red btn-xs" onclick="delCampaign(${c.id},${i})">✕</button>
+    </div>`).join('');
+  document.getElementById('tc-campaigns').innerHTML=`
+    ${rows||'<div style="color:#aaa;font-size:13px;padding:8px 0">אין קמפיינים רשומים</div>'}
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:700;color:#888;margin-bottom:8px">הוסף קמפיין</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div class="fg"><label>שם הקמפיין</label><input id="cn-${c.id}" placeholder="קמפיין ברנד גוגל..."/></div>
+      <div class="fg"><label>פלטפורמה</label>
+        <select id="cp-${c.id}"><option>גוגל</option><option>מטא</option><option>טיקטוק</option><option>לינקדאין</option><option>אחר</option></select>
+      </div>
+      <div class="fg"><label>תקציב חודשי (₪)</label><input type="number" id="cb-${c.id}" placeholder="0"/></div>
+      <div class="fg"><label>סטטוס</label>
+        <select id="cs-${c.id}"><option>פעיל</option><option>מושהה</option><option>הסתיים</option></select>
+      </div>
+      <div class="fg"><label>תאריך הקמה</label><input type="date" id="cd-${c.id}"/></div>
+    </div>
+    <button class="btn btn-blue btn-sm" onclick="addCampaign(${c.id})">+ הוסף קמפיין</button>`;
+}
+
+function addCampaign(cid){
+  const c=clients.find(x=>x.id===cid);
+  const name=document.getElementById('cn-'+cid).value.trim();
+  if(!name){alert('יש להזין שם קמפיין');return}
+  c.campaigns.push({name,platform:document.getElementById('cp-'+cid).value,budget:Number(document.getElementById('cb-'+cid).value)||0,status:document.getElementById('cs-'+cid).value,startDate:document.getElementById('cd-'+cid).value});
+  save();buildCampaigns(c);
+}
+
+function delCampaign(cid,idx){
+  const c=clients.find(x=>x.id===cid);c.campaigns.splice(idx,1);save();buildCampaigns(c);
+}
+
+function buildROI(c){
+  const roi=c.roi||{};
+  const roiVal=calcROI(roi);
+  const cost=(Number(roi.mediaSpend)||0)+(Number(roi.agencyCost)||0);
+  const profit=(Number(roi.revenue)||0)-cost;
+  document.getElementById('tc-roi').innerHTML=`
+    <div class="roi-box">
+      <div class="roi-title">ROI חישוב נוכחי</div>
+      <div class="roi-big">${roiVal}%</div>
+      <div class="roi-sub">${roiVal>=0?'החזר חיובי על ההשקעה':'החזר שלילי — לבדוק'}</div>
+      <div class="roi-grid">
+        <div class="roi-cell"><div class="rc-lbl">עלות כוללת</div><div class="rc-val">₪${cost.toLocaleString()}</div></div>
+        <div class="roi-cell"><div class="rc-lbl">הכנסה</div><div class="rc-val">₪${(Number(roi.revenue)||0).toLocaleString()}</div></div>
+        <div class="roi-cell"><div class="rc-lbl">רווח נקי</div><div class="rc-val">₪${profit.toLocaleString()}</div></div>
+      </div>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:#888;margin-bottom:10px">הזן ערכים לחישוב ROI</div>
+    <div class="roi-input-row">
+      <div class="fg"><label>תקציב מדיה חודשי (₪)</label><input type="number" id="roi-ms-${c.id}" value="${roi.mediaSpend||''}" placeholder="0" oninput="previewROI(${c.id})"/></div>
+      <div class="fg"><label>עלות סוכנות חודשית (₪)</label><input type="number" id="roi-ac-${c.id}" value="${roi.agencyCost||c.amount||''}" placeholder="0" oninput="previewROI(${c.id})"/></div>
+      <div class="fg"><label>הכנסה שנוצרה (₪)</label><input type="number" id="roi-rv-${c.id}" value="${roi.revenue||''}" placeholder="0" oninput="previewROI(${c.id})"/></div>
+      <div class="fg"><label>מספר לידים</label><input type="number" id="roi-ld-${c.id}" value="${roi.leads||''}" placeholder="0" oninput="previewROI(${c.id})"/></div>
+      <div class="fg"><label>ערך עסקה ממוצע (₪)</label><input type="number" id="roi-ad-${c.id}" value="${roi.avgDeal||''}" placeholder="0" oninput="previewROI(${c.id})"/></div>
+    </div>
+    <div id="roi-preview-${c.id}" style="background:#f8f9fa;border-radius:8px;padding:10px;font-size:13px;margin-bottom:10px;display:none"></div>
+    <button class="btn btn-blue btn-sm" onclick="saveROI(${c.id})">שמור ROI</button>
+    <span id="roi-msg-${c.id}" style="font-size:12px;color:#16a34a;margin-right:8px"></span>`;
+}
+
+function previewROI(id){
+  const ms=Number(document.getElementById('roi-ms-'+id).value)||0;
+  const ac=Number(document.getElementById('roi-ac-'+id).value)||0;
+  const rv=Number(document.getElementById('roi-rv-'+id).value)||0;
+  const ld=Number(document.getElementById('roi-ld-'+id).value)||0;
+  const ad=Number(document.getElementById('roi-ad-'+id).value)||0;
+  const cost=ms+ac,profit=rv-cost,roi=cost>0?Math.round(((rv-cost)/cost)*100):0;
+  const prev=document.getElementById('roi-preview-'+id);
+  if(!prev)return;
+  prev.style.display='block';
+  prev.innerHTML=`<strong>תצוגה מקדימה:</strong> ROI = ${roi}% | רווח = ₪${profit.toLocaleString()}${ld?` | עלות לליד = ₪${Math.round(cost/ld).toLocaleString()}`:''}${ld&&ad?` | סגירה פוטנציאלית = ₪${(ld*ad).toLocaleString()}`:''}`;
+}
+
+function saveROI(id){
+  const c=clients.find(x=>x.id===id);
+  c.roi={mediaSpend:document.getElementById('roi-ms-'+id).value,agencyCost:document.getElementById('roi-ac-'+id).value,revenue:document.getElementById('roi-rv-'+id).value,leads:document.getElementById('roi-ld-'+id).value,avgDeal:document.getElementById('roi-ad-'+id).value};
+  save();render();buildROI(c);buildHealth(c);
+  const msg=document.getElementById('roi-msg-'+id);
+  if(msg){msg.textContent='נשמר!';setTimeout(()=>{if(msg)msg.textContent=''},2000)}
+}
+
+function buildPayments(c){
+  const rows=(c.payments||[]).map((p,i)=>`
+    <div class="pay-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+        <span style="font-weight:700">${p.month}</span>
+        <span style="font-weight:700">₪${(Number(p.amount)||0).toLocaleString()}</span>
+        <span><span class="dot ${dotCls(p.status)}"></span><span style="font-size:13px;font-weight:600">${p.status}</span></span>
+      </div>
+      ${p.link?`<div style="margin-bottom:6px"><a href="${p.link}" target="_blank" class="link-chip">קישור לאישור תשלום ↗</a></div>`:''}
+      ${p.note?`<div style="font-size:12px;color:#666;margin-bottom:6px">${p.note}</div>`:''}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+        <input id="pl-${c.id}-${i}" type="text" placeholder="קישור לאישור (Drive/Dropbox...)" style="flex:1;min-width:160px;font-size:12px;padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-family:Arial" value="${p.link||''}"/>
+        <input id="pn-${c.id}-${i}" type="text" placeholder="הערה" style="width:110px;font-size:12px;padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-family:Arial" value="${p.note||''}"/>
+        <select id="pst-${c.id}-${i}" style="font-size:12px;padding:5px 8px;border:1px solid #ddd;border-radius:6px;font-family:Arial">
+          <option ${p.status==='שולם'?'selected':''}>שולם</option>
+          <option ${p.status==='ממתין'?'selected':''}>ממתין</option>
+          <option ${p.status==='בפיגור'?'selected':''}>בפיגור</option>
+        </select>
+        <button class="btn btn-green btn-xs" onclick="savePayRow(${c.id},${i})">שמור</button>
+        <button class="btn btn-red btn-xs" onclick="delPay(${c.id},${i})">מחק</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('tc-payments').innerHTML=
+    (rows||'<div style="color:#aaa;font-size:13px;padding:8px 0">אין רשומות עדיין</div>')+`
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:700;color:#888;margin-bottom:8px">הוסף רשומת תשלום</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <input id="pm-${c.id}" placeholder="חודש (מאי 2025)" style="flex:1;min-width:120px;font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:Arial"/>
+      <input id="pa-${c.id}" type="number" placeholder="סכום" style="width:110px;font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:Arial" value="${c.amount||''}"/>
+      <select id="pp-${c.id}" style="font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:Arial"><option>שולם</option><option>ממתין</option><option>בפיגור</option></select>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <input id="plink-${c.id}" placeholder="קישור לאישור תשלום" style="flex:1;font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:Arial"/>
+      <input id="pnote-${c.id}" placeholder="הערה" style="width:130px;font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:Arial"/>
+    </div>
+    <button class="btn btn-blue btn-sm" onclick="addPayment(${c.id})">+ הוסף רשומה</button>`;
+}
+
+function savePayRow(cid,idx){
+  const c=clients.find(x=>x.id===cid);
+  c.payments[idx].link=document.getElementById('pl-'+cid+'-'+idx).value;
+  c.payments[idx].note=document.getElementById('pn-'+cid+'-'+idx).value;
+  c.payments[idx].status=document.getElementById('pst-'+cid+'-'+idx).value;
+  save();render();buildPayments(c);
+}
+
+function delPay(cid,idx){
+  if(!confirm('למחוק?'))return;
+  const c=clients.find(x=>x.id===cid);c.payments.splice(idx,1);save();buildPayments(c);
+}
+
+function addPayment(cid){
+  const c=clients.find(x=>x.id===cid);
+  const month=document.getElementById('pm-'+cid).value.trim();
+  if(!month){alert('יש להזין חודש');return}
+  c.payments.unshift({month,amount:Number(document.getElementById('pa-'+cid).value)||c.amount||0,status:document.getElementById('pp-'+cid).value,link:document.getElementById('plink-'+cid).value.trim(),note:document.getElementById('pnote-'+cid).value.trim()});
+  save();render();buildPayments(c);
+}
+
+function buildLog(c){
+  document.getElementById('tc-log').innerHTML=`
+    <div id="loglist-${c.id}">
+      ${(c.log||[]).length?(c.log).map((l,i)=>`<div class="log-item">
+        <div style="display:flex;justify-content:space-between;gap:8px">
+          <div>${l.t}</div>
+          <button class="btn btn-red btn-xs" style="flex-shrink:0" onclick="delLog(${c.id},${i})">✕</button>
+        </div>
+        <div class="log-date">${l.d} · ${l.by}</div>
+      </div>`).join(''):'<div style="color:#aaa;font-size:13px;padding:8px 0">אין רשומות</div>'}
+    </div>
+    <div class="divider"></div>
+    <textarea id="logtxt-${c.id}" rows="2" placeholder="מה בוצע? מה עודכן? מה דוּבר עם הלקוח?" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:13px;resize:vertical;font-family:Arial;margin-bottom:8px"></textarea>
+    <div style="display:flex;gap:8px">
+      <select id="logby-${c.id}" style="font-size:13px;padding:7px 10px;border:1px solid #ddd;border-radius:8px;font-family:Arial">
+        <option>אני</option><option>דניאל</option><option>שירה</option>
+      </select>
+      <button class="btn btn-blue btn-sm" onclick="addLog(${c.id})">+ הוסף רשומה</button>
+    </div>`;
+}
+
+function addLog(id){
+  const txt=(document.getElementById('logtxt-'+id)||{}).value||'';
+  if(!txt.trim())return;
+  const c=clients.find(x=>x.id===id);
+  c.log.unshift({t:txt.trim(),d:new Date().toISOString().slice(0,10),by:document.getElementById('logby-'+id).value||'אני'});
+  save();buildLog(c);
+  document.getElementById('logtxt-'+id).value='';
+}
+
+function delLog(cid,idx){
+  const c=clients.find(x=>x.id===cid);c.log.splice(idx,1);save();buildLog(c);
+}
+
+function buildHealth(c){
+  const {score,checks}=healthScore(c);
+  const color=healthColor(score);
+  document.getElementById('tc-health').innerHTML=`
+    <div style="text-align:center;margin-bottom:16px">
+      <div class="health-score-big" style="color:${color}">${score}</div>
+      <div style="font-size:14px;color:#888">ניקוד בריאות הלקוח</div>
+      <div style="font-size:12px;color:#aaa;margin-top:4px">${score>=80?'לקוח בריא — מצוין!':score>=50?'יש מה לשפר — בדוק הערות':'דורש טיפול דחוף'}</div>
+    </div>
+    <div class="health-bar-wrap" style="height:10px;margin-bottom:16px"><div class="health-bar" style="width:${score}%;background:${color}"></div></div>
+    <div class="health-checks">
+      ${checks.map(ch=>`<div class="health-check ${ch.ok===true?'pass':ch.ok==='warn'?'warn':'fail'}">
+        <span style="font-size:16px">${ch.ok===true?'✓':ch.ok==='warn'?'⚠':'✗'}</span>
+        <span>${ch.txt}</span>
+      </div>`).join('')}
+    </div>`;
+}
+
+function buildQuote(c){
+  const today=new Date().toLocaleDateString('he-IL');
+  const svcLines=(c.svcs||[]).map((s,i)=>`${i+1}. ${s}${c.eng&&c.eng[0]?' ('+c.eng[0]+')':''}`).join('\n')||'(לא הוגדרו שירותים)';
+  const tpl=`הצעת מחיר\nמתאריך: ${today}\n\nלכבוד: ${c.contact||c.name},\nחברה: ${c.name}${c.biznum?' | ח.פ: '+c.biznum:''}\n\nשלום רב,\n\nלהלן הצעת המחיר עבור השירותים הבאים:\n\n${svcLines}\n\nסה"כ: ₪${(Number(c.amount)||0).toLocaleString()} לחודש\nמודל תשלום: ${(c.pay||[]).join(', ')||'—'}\n\nתוקף הצעה: 14 יום\nתנאי תשלום: שוטף + 30\n\nלאישור ולכל שאלה, אנא חזרו אלינו.\n\nבברכה,\nסוכנות דיגיטל`;
+  document.getElementById('tc-quote').innerHTML=`
+    <div style="font-size:12px;color:#888;margin-bottom:8px">ערוך את הטקסט לפני שליחה</div>
+    <textarea class="quote-area" id="qtxt-${c.id}">${tpl}</textarea>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-blue" onclick="sendQuote(${c.id})">שלח במייל (Thunderbird) ↗</button>
+      <button class="btn btn-green" onclick="copyQuote(${c.id})">העתק טקסט</button>
+    </div>
+    <div id="qmsg-${c.id}" style="font-size:12px;color:#16a34a;margin-top:6px"></div>`;
+}
+
+function sendQuote(id){
+  const c=clients.find(x=>x.id===id);
+  const txt=document.getElementById('qtxt-'+id).value;
+  window.location.href=`mailto:${c.email||''}?subject=${encodeURIComponent('הצעת מחיר — '+c.name)}&body=${encodeURIComponent(txt)}`;
+}
+
+function copyQuote(id){
+  navigator.clipboard.writeText(document.getElementById('qtxt-'+id).value).then(()=>{
+    const el=document.getElementById('qmsg-'+id);
+    if(el){el.textContent='הועתק!';setTimeout(()=>{if(el)el.textContent=''},2000)}
+  });
+}
+
+function exportClientPDF(id){
+  const c=clients.find(x=>x.id===id);
+  const hs=healthScore(c);
+  const roi=calcROI(c.roi);
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>דוח לקוח — ${c.name}</title>
+  <style>body{font-family:Arial,sans-serif;direction:rtl;padding:30px;color:#1a1a1a;max-width:800px;margin:0 auto}
+  h1{font-size:22px;margin-bottom:4px}h2{font-size:15px;color:#444;border-bottom:1px solid #ddd;padding-bottom:6px;margin:20px 0 10px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.cell{background:#f8f9fa;padding:10px;border-radius:6px}
+  .cell label{font-size:10px;color:#888;display:block;margin-bottom:2px;font-weight:700;text-transform:uppercase}.cell .v{font-size:14px;font-weight:600}
+  .log-row{padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px}.pay-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+  .health{font-size:36px;font-weight:700;color:${hs.score>=80?'#16a34a':hs.score>=50?'#ea580c':'#dc2626'}}.footer{margin-top:30px;font-size:11px;color:#aaa;border-top:1px solid #eee;padding-top:10px}
+  @media print{button{display:none}}</style></head><body>
+  <h1>${c.name}</h1>
+  <div style="font-size:13px;color:#888;margin-bottom:20px">דוח לקוח מלא · ${new Date().toLocaleDateString('he-IL')}</div>
+  <h2>פרטים כלליים</h2>
+  <div class="grid">
+    <div class="cell"><label>איש קשר</label><div class="v">${c.contact||'—'}</div></div>
+    <div class="cell"><label>טלפון</label><div class="v">${c.phone||'—'}</div></div>
+    <div class="cell"><label>אימייל</label><div class="v">${c.email||'—'}</div></div>
+    <div class="cell"><label>אתר</label><div class="v">${c.website||'—'}</div></div>
+    <div class="cell"><label>כתובת</label><div class="v">${c.address||'—'}</div></div>
+    <div class="cell"><label>ח.פ / עוסק</label><div class="v">${c.biznum||'—'}</div></div>
+    <div class="cell"><label>סוכן אחראי</label><div class="v">${c.agent||'—'}</div></div>
+    <div class="cell"><label>ותק</label><div class="v">${tenure(c.start)}</div></div>
+    <div class="cell"><label>תחילת התקשרות</label><div class="v">${fdate(c.start)}</div></div>
+    <div class="cell"><label>סיום חוזה</label><div class="v">${fdate(c.end)}</div></div>
+    <div class="cell"><label>שירותים</label><div class="v">${(c.svcs||[]).join(', ')||'—'}</div></div>
+    <div class="cell"><label>מודל תשלום</label><div class="v">${(c.pay||[]).join(', ')||'—'}</div></div>
+    <div class="cell"><label>סכום חודשי</label><div class="v">₪${(Number(c.amount)||0).toLocaleString()}</div></div>
+    <div class="cell"><label>סטטוס תשלום</label><div class="v">${c.pstatus}</div></div>
+  </div>
+  <h2>ניקוד בריאות</h2>
+  <div class="health">${hs.score}/100</div>
+  <div style="font-size:13px;color:#666;margin-top:6px">${hs.checks.map(ch=>(ch.ok===true?'✓ ':ch.ok==='warn'?'⚠ ':'✗ ')+ch.txt).join(' | ')}</div>
+  ${(c.roi&&c.roi.revenue)?`<h2>ROI</h2><div class="grid">
+    <div class="cell"><label>ROI</label><div class="v">${roi}%</div></div>
+    <div class="cell"><label>הכנסה</label><div class="v">₪${(Number(c.roi.revenue)||0).toLocaleString()}</div></div>
+    <div class="cell"><label>תקציב מדיה</label><div class="v">₪${(Number(c.roi.mediaSpend)||0).toLocaleString()}</div></div>
+    <div class="cell"><label>עלות סוכנות</label><div class="v">₪${(Number(c.roi.agencyCost)||0).toLocaleString()}</div></div>
+  </div>`:''}
+  ${(c.payments&&c.payments.length)?`<h2>היסטוריית תשלומים</h2>${c.payments.map(p=>`<div class="pay-row"><span>${p.month}</span><span>₪${(Number(p.amount)||0).toLocaleString()}</span><span>${p.status}</span>${p.link?`<a href="${p.link}">אישור</a>`:''}</div>`).join('')}`:''}
+  ${(c.campaigns&&c.campaigns.length)?`<h2>קמפיינים</h2>${c.campaigns.map(camp=>`<div class="pay-row"><span>${camp.name}</span><span>${camp.platform}</span><span>₪${(Number(camp.budget)||0).toLocaleString()}/חודש</span><span>${camp.status}</span></div>`).join('')}`:''}
+  ${(c.log&&c.log.length)?`<h2>לוג פעילות</h2>${c.log.map(l=>`<div class="log-row"><strong>${l.d}</strong> (${l.by}) — ${l.t}</div>`).join('')}`:''}
+  <div class="footer">הופק על ידי CRM סוכנות דיגיטל · ${new Date().toLocaleDateString('he-IL')}</div>
+  <br><button onclick="window.print()" style="padding:8px 16px;background:#1d4ed8;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px">הדפס / שמור כ-PDF</button>
+  </body></html>`);
+  win.document.close();
+}
+
+function exportAllPDF(){
+  const win=window.open('','_blank');
+  const rows=clients.map(c=>{const hs=healthScore(c);const roi=calcROI(c.roi);
+    return`<tr><td>${c.name}</td><td>${c.contact||'—'}</td><td>${(c.svcs||[]).join(', ')||'—'}</td><td>₪${(Number(c.amount)||0).toLocaleString()}</td><td>${c.pstatus}</td><td style="color:${healthColor(hs.score)};font-weight:700">${hs.score}</td><td>${roi?roi+'%':'—'}</td><td>${fdate(c.end)}</td></tr>`}).join('');
+  win.document.write(`<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>דוח סוכנות</title>
+  <style>body{font-family:Arial,sans-serif;direction:rtl;padding:30px}h1{font-size:20px;margin-bottom:16px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #ddd;padding:8px 10px;text-align:right}th{background:#1d2b4f;color:#fff}</style></head><body>
+  <h1>דוח סוכנות — כלל הלקוחות · ${new Date().toLocaleDateString('he-IL')}</h1>
+  <table><thead><tr><th>שם לקוח</th><th>איש קשר</th><th>שירותים</th><th>סכום חודשי</th><th>סטטוס תשלום</th><th>בריאות</th><th>ROI</th><th>סיום חוזה</th></tr></thead><tbody>${rows}</tbody></table>
+  <br><button onclick="window.print()" style="padding:8px 16px;background:#1d2b4f;color:#fff;border:none;border-radius:6px;cursor:pointer">הדפס / שמור כ-PDF</button>
+  </body></html>`);
+  win.document.close();
+}
+
+function swTab(name,btn){
+  document.querySelectorAll('.tabs .tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tc-'+name).classList.add('on');
+}
+
+function closeOv(id){document.getElementById(id).classList.remove('open')}
+
+function openNew(){
+  document.querySelectorAll('#newOv .tag').forEach(t=>t.classList.remove('on'));
+  ['nn','nc','nph','nem','nad','nweb','nbn','nnt'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=''});
+  ['nam'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=''});
+  ['nst','nen','nbday'].forEach(i=>{const el=document.getElementById(i);if(el)el.value=''});
+  document.getElementById('newOv').classList.add('open');
+}
+
+function tog(el){el.classList.toggle('on')}
+
+function saveNew(){
+  const name=document.getElementById('nn').value.trim();
+  if(!name){alert('שם עסק הוא שדה חובה');return}
+  clients.push({
+    id:Date.now(),name,
+    contact:document.getElementById('nc').value,
+    phone:document.getElementById('nph').value,
+    email:document.getElementById('nem').value,
+    address:document.getElementById('nad').value,
+    website:document.getElementById('nweb').value,
+    biznum:document.getElementById('nbn').value,
+    source:document.getElementById('nsrc').value,
+    bday:document.getElementById('nbday').value,
+    agent:document.getElementById('nag').value,
+    start:document.getElementById('nst').value,
+    end:document.getElementById('nen').value,
+    svcs:[...document.querySelectorAll('#nsvcs .tag.on')].map(t=>t.textContent),
+    eng:[...document.querySelectorAll('#neng .tag.on')].map(t=>t.textContent),
+    pay:[...document.querySelectorAll('#npay .tag.on')].map(t=>t.textContent),
+    amount:Number(document.getElementById('nam').value)||0,
+    pstatus:document.getElementById('nps').value,
+    notes:document.getElementById('nnt').value,
+    color:AVC[clients.length%AVC.length],
+    log:[],payments:[],campaigns:[],
+    roi:{mediaSpend:'',agencyCost:'',revenue:'',leads:'',avgDeal:''}
+  });
+  save();render();closeOv('newOv');
+}
+
+render();
+</script>
+</body>
+</html>
