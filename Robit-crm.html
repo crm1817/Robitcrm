@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CRM — סוכנות דיגיטל</title>
 <style>
+#lockScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1d2b4f,#2563eb);display:flex;align-items:center;justify-content:center;z-index:9999}
+#lockBox{background:#fff;border-radius:16px;padding:36px 32px;width:100%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+#lockBox h2{font-size:20px;font-weight:700;color:#111827;margin-bottom:6px}
+#lockBox p{font-size:13px;color:#6b7280;margin-bottom:24px}
+#lockPass{width:100%;padding:12px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;margin-bottom:12px;text-align:center;letter-spacing:2px}
+#lockPass:focus{border-color:#2563eb;box-shadow:0 0 0 3px #dbeafe}
+#lockBtn{width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+#lockBtn:hover{background:#1d4ed8}
+#lockErr{color:#dc2626;font-size:12px;margin-top:8px;min-height:18px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;direction:rtl;min-height:100vh}
 /* topbar */
@@ -175,6 +184,27 @@ body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;direction:rtl
 </style>
 </head>
 <body>
+<div id="lockScreen">
+  <div id="lockBox">
+    <h2>🔒 Robit CRM</h2>
+    <p>הכנס סיסמא להמשך</p>
+    <input id="lockPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLock()"/>
+    <button id="lockBtn" onclick="checkLock()">כניסה</button>
+    <div id="lockErr"></div>
+  </div>
+</div>
+<script>
+(function(){
+  const PASS = 'yamanbar2026!@';
+  const KEY = 'robit_auth_v1';
+  if(sessionStorage.getItem(KEY)==='ok'){document.getElementById('lockScreen').style.display='none';return;}
+  window.checkLock=function(){
+    const v=document.getElementById('lockPass').value;
+    if(v===PASS){sessionStorage.setItem(KEY,'ok');document.getElementById('lockScreen').style.display='none';}
+    else{document.getElementById('lockErr').textContent='סיסמא שגויה, נסה שוב';document.getElementById('lockPass').value='';}
+  }
+})();
+</script>
 
 <div class="topbar">
   <div>
