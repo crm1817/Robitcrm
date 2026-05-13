@@ -5,15 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CRM — סוכנות דיגיטל</title>
 <style>
-#lockScreen{position:fixed;inset:0;background:linear-gradient(135deg,#1d2b4f,#2563eb);display:flex;align-items:center;justify-content:center;z-index:9999}
-#lockBox{background:#fff;border-radius:16px;padding:36px 32px;width:100%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-#lockBox h2{font-size:20px;font-weight:700;color:#111827;margin-bottom:6px}
-#lockBox p{font-size:13px;color:#6b7280;margin-bottom:24px}
-#lockPass{width:100%;padding:12px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;margin-bottom:12px;text-align:center;letter-spacing:2px}
-#lockPass:focus{border-color:#2563eb;box-shadow:0 0 0 3px #dbeafe}
-#lockBtn{width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
-#lockBtn:hover{background:#1d4ed8}
-#lockErr{color:#dc2626;font-size:12px;margin-top:8px;min-height:18px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;direction:rtl;min-height:100vh}
 /* topbar */
@@ -149,31 +140,6 @@ body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;direction:rtl
 .tl-date{font-size:11px;color:#999}
 /* quote */
 .quote-area{width:100%;padding:12px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:Arial,sans-serif;line-height:1.7;min-height:200px;resize:vertical;background:#fafafa;color:#1a1a1a}
-/* mobile */
-@media(max-width:600px){
-  .topbar{padding:10px 14px}
-  .top-actions .btn{padding:6px 8px;font-size:11px}
-  .main{padding:12px 12px}
-  .stats{grid-template-columns:1fr 1fr;gap:8px}
-  .stat{padding:10px 12px}
-  .stat .val{font-size:18px}
-  .filters{flex-direction:column;gap:8px}
-  .filters input,.filters select{min-width:unset;width:100%}
-  .grid{grid-template-columns:1fr;gap:12px}
-  .card{padding:12px}
-  .modal{border-radius:12px 12px 0 0;position:fixed;bottom:0;left:0;right:0;margin:0;max-width:100%;max-height:92vh;overflow-y:auto}
-  .overlay{padding:0;align-items:flex-end}
-  .ig{grid-template-columns:1fr}
-  .fgrid{grid-template-columns:1fr}
-  .roi-grid{grid-template-columns:1fr 1fr}
-  .roi-input-row{grid-template-columns:1fr}
-  .mfoot{flex-wrap:wrap}
-  .mfoot .btn{flex:1;text-align:center}
-  .card-actions{flex-wrap:wrap}
-  .card-actions .btn{flex:1;text-align:center;font-size:11px;padding:6px 8px}
-  .tabs{overflow-x:auto;flex-wrap:nowrap}
-  .tab{white-space:nowrap;flex-shrink:0}
-}
 /* print / pdf */
 @media print{
   .topbar,.filters,.card-actions,.btn,.tabs,.overlay{display:none!important}
@@ -184,24 +150,29 @@ body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;direction:rtl
 </style>
 </head>
 <body>
-<div id="lockScreen">
-  <div id="lockBox">
-    <h2>🔒 Robit CRM</h2>
-    <p>הכנס סיסמא להמשך</p>
-    <input id="lockPass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLock()"/>
-    <button id="lockBtn" onclick="checkLock()">כניסה</button>
-    <div id="lockErr"></div>
+
+<!-- Lock Screen -->
+<div id="lockScreen" style="display:none;position:fixed;inset:0;background:#1d2b4f;z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:36px 32px;width:100%;max-width:360px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+    <div style="font-size:40px;margin-bottom:12px">🔒</div>
+    <h2 style="font-size:20px;font-weight:700;color:#1d2b4f;margin-bottom:6px">Robit CRM</h2>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:24px">הזן סיסמה להמשך</p>
+    <input id="lockPass" type="password" placeholder="••••••••" style="width:100%;padding:12px 14px;border:1.5px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;margin-bottom:12px;text-align:center;letter-spacing:2px;font-family:Arial" onkeydown="if(event.key==='Enter')checkLock()"/>
+    <button onclick="checkLock()" style="width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:Arial">כניסה</button>
+    <div id="lockErr" style="color:#dc2626;font-size:12px;margin-top:8px;min-height:18px"></div>
   </div>
 </div>
 <script>
 (function(){
-  const PASS = 'yamanbar2026!@';
-  const KEY = 'robit_auth_v1';
-  if(sessionStorage.getItem(KEY)==='ok'){document.getElementById('lockScreen').style.display='none';return;}
-  window.checkLock=function(){
+  const PASS='Yamanbar2026!@';
+  function checkLock(){
     const v=document.getElementById('lockPass').value;
-    if(v===PASS){sessionStorage.setItem(KEY,'ok');document.getElementById('lockScreen').style.display='none';}
-    else{document.getElementById('lockErr').textContent='סיסמא שגויה, נסה שוב';document.getElementById('lockPass').value='';}
+    if(v===PASS){sessionStorage.setItem('crm_auth','1');document.getElementById('lockScreen').style.display='none'}
+    else{document.getElementById('lockErr').textContent='סיסמה שגויה, נסה שוב';document.getElementById('lockPass').value=''}
+  }
+  window.checkLock=checkLock;
+  if(sessionStorage.getItem('crm_auth')!=='1'){
+    document.getElementById('lockScreen').style.display='flex';
   }
 })();
 </script>
@@ -258,6 +229,7 @@ body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;direction:rtl
       <button class="tab" onclick="swTab('log',this)">לוג</button>
       <button class="tab" onclick="swTab('health',this)">בריאות</button>
       <button class="tab" onclick="swTab('quote',this)">הצעת מחיר</button>
+      <button class="tab" onclick="swTab('docs',this)">📁 מסמכים</button>
     </div>
     <div id="tc-info" class="tc on"></div>
     <div id="tc-services" class="tc"></div>
@@ -267,6 +239,7 @@ body{font-family:Arial,sans-serif;background:#f0f2f5;color:#1a1a1a;direction:rtl
     <div id="tc-log" class="tc"></div>
     <div id="tc-health" class="tc"></div>
     <div id="tc-quote" class="tc"></div>
+    <div id="tc-docs" class="tc"></div>
   </div>
 </div>
 </div>
@@ -375,45 +348,10 @@ const DEFAULT=[
   {id:2,name:'רום שינוע בע"מ',contact:'',phone:'',email:'',address:'',website:'',biznum:'',source:'',bday:'',agent:'אני',start:'',end:'',svcs:[],eng:[],pay:[],amount:0,pstatus:'ממתין',notes:'',color:'av-t',log:[],payments:[],campaigns:[],roi:{mediaSpend:'',agencyCost:'',revenue:'',leads:'',avgDeal:''}}
 ];
 
-let clients = JSON.parse(JSON.stringify(DEFAULT));
-let _saveTimeout = null;
-let _ignoreNext = false;
-
-// ── Firebase Setup ──
-import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js').then(({initializeApp})=>{
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js').then(({getFirestore,doc,setDoc,onSnapshot})=>{
-    const firebaseConfig = {
-      apiKey: "AIzaSyD7G1BmHGq_eAF8tSuv68LArR6luKHuVKM",
-      authDomain: "robitc.firebaseapp.com",
-      projectId: "robitc",
-      storageBucket: "robitc.firebasestorage.app",
-      messagingSenderId: "185301314302",
-      appId: "1:185301314302:web:cf35c8156bd6e6351413af",
-      measurementId: "G-WV2KZE40TX"
-    };
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const CRM_DOC = doc(db, "crm2", "main");
-
-    onSnapshot(CRM_DOC, (snap)=>{
-      if(snap.exists()){
-        if(_ignoreNext){_ignoreNext=false;return;}
-        clients = snap.data().clients || JSON.parse(JSON.stringify(DEFAULT));
-        render();
-      }
-    });
-
-    window._firestoreSetDoc = (data)=>{ _ignoreNext=true; return setDoc(CRM_DOC,{clients:data}); };
-  });
-});
-
-function save(){
-  if(_saveTimeout) clearTimeout(_saveTimeout);
-  _saveTimeout = setTimeout(()=>{
-    if(window._firestoreSetDoc) window._firestoreSetDoc(clients).catch(console.error);
-  },600);
-}
-function load(){}
+let clients;
+function load(){try{const d=localStorage.getItem('crm_v4');clients=d?JSON.parse(d):JSON.parse(JSON.stringify(DEFAULT))}catch(e){clients=JSON.parse(JSON.stringify(DEFAULT))}}
+function save(){try{localStorage.setItem('crm_v4',JSON.stringify(clients))}catch(e){}}
+load();
 
 // migrate old data
 clients.forEach(c=>{
@@ -425,6 +363,7 @@ clients.forEach(c=>{
   if(!c.bday)c.bday='';
   if(!c.payments)c.payments=[];
   if(!c.log)c.log=[];
+  if(!c.docs)c.docs=[];
 });
 
 function renderAlerts(){
@@ -514,7 +453,7 @@ function openView(id){
   document.getElementById('vtitle').textContent=c.name;
   document.querySelectorAll('.tabs .tab').forEach((t,i)=>t.classList.toggle('on',i===0));
   document.querySelectorAll('.tc').forEach((t,i)=>t.classList.toggle('on',i===0));
-  buildInfo(c);buildServices(c);buildCampaigns(c);buildROI(c);buildPayments(c);buildLog(c);buildHealth(c);buildQuote(c);
+  buildInfo(c);buildServices(c);buildCampaigns(c);buildROI(c);buildPayments(c);buildLog(c);buildHealth(c);buildQuote(c);buildDocs(c);
   document.getElementById('viewOv').classList.add('open');
 }
 
@@ -872,6 +811,108 @@ function copyQuote(id){
   });
 }
 
+// ─── Firebase Storage — מסמכים ───────────────────────────────
+const FB_CONFIG={apiKey:"AIzaSyD7G1BmHGq_eAF8tSuv68LArR6luKHuVKM",authDomain:"robitc.firebaseapp.com",projectId:"robitc",storageBucket:"robitc.firebasestorage.app",messagingSenderId:"185301314302",appId:"1:185301314302:web:cf35c8156bd6e6351413af"};
+
+let fbApp=null,fbStorage=null;
+function getStorage(){
+  if(fbStorage)return Promise.resolve(fbStorage);
+  return new Promise((resolve,reject)=>{
+    if(typeof firebase==='undefined'){reject(new Error('Firebase SDK not loaded'));return;}
+    if(!fbApp){
+      try{fbApp=firebase.initializeApp(FB_CONFIG,'crm-docs')}
+      catch(e){fbApp=firebase.app('crm-docs')}
+    }
+    fbStorage=firebase.storage(fbApp);
+    resolve(fbStorage);
+  });
+}
+
+const DOC_CATS=['חוזה','הצעת מחיר מאושרת','אישור תשלום','דוח ביצועים','מסמך משפטי','אחר'];
+
+function buildDocs(c){
+  const el=document.getElementById('tc-docs');
+  if(!el)return;
+  const docs=c.docs||[];
+  el.innerHTML=`
+    <div style="font-size:12px;color:#888;margin-bottom:12px">כל הקבצים נשמרים ב-Firebase Storage — מאובטח ונגיש מכל מקום</div>
+    <div id="doclist-${c.id}">${renderDocList(c)}</div>
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:10px">העלאת מסמך חדש</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div class="fg"><label>קטגוריה</label>
+        <select id="dcat-${c.id}">${DOC_CATS.map(cat=>`<option>${cat}</option>`).join('')}</select>
+      </div>
+      <div class="fg"><label>שם תיאורי (אופציונלי)</label>
+        <input id="dname-${c.id}" placeholder="למשל: חוזה ינואר 2025"/>
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:10px"><label>קישור לקובץ (Google Drive / Dropbox)</label>
+      <input id="dlink-${c.id}" placeholder="https://drive.google.com/file/d/..."/>
+    </div>
+    <button class="btn btn-blue btn-sm" onclick="addDoc(${c.id})">+ הוסף מסמך</button>
+    <span id="dmsg-${c.id}" style="font-size:12px;color:#16a34a;margin-right:8px"></span>\`;
+}
+
+}
+
+function renderDocList(c){
+  const docs=c.docs||[];
+  if(!docs.length)return '<div style="color:#aaa;font-size:13px;padding:8px 0 14px">אין מסמכים עדיין — העלה את המסמך הראשון</div>';
+  return docs.map((d,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8f9fa;border-radius:8px;margin-bottom:6px;flex-wrap:wrap">
+      <span style="font-size:20px">${docIcon(d.name)}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.label||d.name}</div>
+        <div style="font-size:11px;color:#888">${d.cat} · ${d.date} · ${formatBytes(d.size)}</div>
+      </div>
+      <a href="${d.url}" target="_blank" class="btn btn-blue btn-xs">פתח ↗</a>
+      <button class="btn btn-red btn-xs" onclick="deleteDoc(${c.id},${i})">מחק</button>
+    </div>`).join('');
+}
+
+function docIcon(name){
+  if(!name)return '📄';
+  const ext=(name.split('.').pop()||'').toLowerCase();
+  if(ext==='pdf')return '📕';
+  if(['doc','docx'].includes(ext))return '📘';
+  if(['xls','xlsx'].includes(ext))return '📗';
+  if(['png','jpg','jpeg'].includes(ext))return '🖼️';
+  return '📄';
+}
+
+function formatBytes(b){
+  if(!b)return '';
+  if(b<1024)return b+'B';
+  if(b<1048576)return Math.round(b/1024)+'KB';
+  return (b/1048576).toFixed(1)+'MB';
+}
+
+function addDoc(cid){
+  const c=clients.find(x=>x.id===cid);
+  const link=document.getElementById('dlink-'+cid).value.trim();
+  const name=document.getElementById('dname-'+cid).value.trim()||'מסמך';
+  const cat=document.getElementById('dcat-'+cid).value;
+  if(!link){alert('יש להזין קישור לקובץ');return;}
+  if(!c.docs)c.docs=[];
+  c.docs.unshift({name,label:name,cat,url:link,size:0,date:new Date().toLocaleDateString('he-IL'),path:''});
+  save();
+  document.getElementById('dlink-'+cid).value='';
+  document.getElementById('dname-'+cid).value='';
+  document.getElementById('doclist-'+cid).innerHTML=renderDocList(c);
+  const msg=document.getElementById('dmsg-'+cid);
+  if(msg){msg.textContent='נוסף!';setTimeout(()=>{if(msg)msg.textContent=''},2000)}
+}
+
+function deleteDoc(cid,idx){
+  if(!confirm('למחוק מסמך זה?'))return;
+  const c=clients.find(x=>x.id===cid);
+  c.docs.splice(idx,1);
+  save();
+  document.getElementById('doclist-'+cid).innerHTML=renderDocList(c);
+}
+// ─────────────────────────────────────────────────────────────
+
 function exportClientPDF(id){
   const c=clients.find(x=>x.id===id);
   const hs=healthScore(c);
@@ -977,7 +1018,7 @@ function saveNew(){
     pstatus:document.getElementById('nps').value,
     notes:document.getElementById('nnt').value,
     color:AVC[clients.length%AVC.length],
-    log:[],payments:[],campaigns:[],
+    log:[],payments:[],campaigns:[],docs:[],
     roi:{mediaSpend:'',agencyCost:'',revenue:'',leads:'',avgDeal:''}
   });
   save();render();closeOv('newOv');
