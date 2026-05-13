@@ -918,75 +918,50 @@ function uploadDocFile(cid,file){
   const progBar=document.getElementById('duprogbar-'+cid);
   const progText=document.getElementById('duprogtext-'+cid);
 
-  // Show progress
   progWrap.style.display='block';
-  progBar.style.width='0%';
-  progText.textContent='מתחבר ל-Firebase...';
+  progBar.style.width='10%';
+  progText.textContent='מעלה קובץ...';
 
-  // Load Firebase SDK dynamically if needed
-  loadFirebaseSDK().then(()=>{
-    return getStorage();
-  }).then(storage=>{
-    const path=`crm-docs/${cid}/${Date.now()}_${file.name}`;
-    const ref=storage.ref(path);
-    const task=ref.put(file);
-    task.on('state_changed',
-      snap=>{
-        const pct=Math.round((snap.bytesTransferred/snap.totalBytes)*100);
-        progBar.style.width=pct+'%';
-        progText.textContent=`מעלה... ${pct}%`;
-      },
-      err=>{
-        progText.textContent='שגיאה: '+err.message;
-        progBar.style.background='#dc2626';
-      },
-      ()=>{
-        task.snapshot.ref.getDownloadURL().then(url=>{
-          if(!c.docs)c.docs=[];
-          c.docs.unshift({name:file.name,label,cat,url,size:file.size,date:new Date().toLocaleDateString('he-IL'),path});
-          save();
-          progWrap.style.display='none';
-          document.getElementById('dname-'+cid).value='';
-          document.getElementById('dfile-'+cid).value='';
-          document.getElementById('doclist-'+cid).innerHTML=renderDocList(c);
-          progText.textContent='';
-        });
-      }
-    );
-  }).catch(err=>{
-    progText.textContent='שגיאת חיבור: '+err.message;
+  const BUCKET='robitc.firebasestorage.app';
+  const path=`crm-docs/${cid}/${Date.now()}_${encodeURIComponent(file.name)}`;
+  const uploadUrl=`https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o?uploadType=media&name=${encodeURIComponent('crm-docs/'+cid+'/'+Date.now()+'_'+file.name)}`;
+
+  fetch(uploadUrl,{
+    method:'POST',
+    headers:{'Content-Type':file.type||'application/octet-stream'},
+    body:file
+  })
+  .then(r=>{
+    if(!r.ok)throw new Error('Upload failed: '+r.status);
+    return r.json();
+  })
+  .then(data=>{
+    progBar.style.width='100%';
+    progText.textContent='הועלה בהצלחה!';
+    const url=`https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodeURIComponent(data.name)}?alt=media&token=${data.downloadTokens}`;
+    if(!c.docs)c.docs=[];
+    c.docs.unshift({name:file.name,label,cat,url,size:file.size,date:new Date().toLocaleDateString('he-IL'),path:data.name});
+    save();
+    setTimeout(()=>{
+      progWrap.style.display='none';
+      document.getElementById('dname-'+cid).value='';
+      document.getElementById('dfile-'+cid).value='';
+      document.getElementById('doclist-'+cid).innerHTML=renderDocList(c);
+    },800);
+  })
+  .catch(err=>{
+    progText.textContent='שגיאה: '+err.message;
     progBar.style.background='#dc2626';
+    console.error('Upload error:',err);
   });
 }
 
 function deleteDoc(cid,idx){
   if(!confirm('למחוק מסמך זה?'))return;
   const c=clients.find(x=>x.id===cid);
-  // Try to delete from Storage too
-  loadFirebaseSDK().then(()=>getStorage()).then(storage=>{
-    const path=c.docs[idx].path;
-    if(path)storage.ref(path).delete().catch(()=>{});
-  }).catch(()=>{});
   c.docs.splice(idx,1);
   save();
   document.getElementById('doclist-'+cid).innerHTML=renderDocList(c);
-}
-
-function loadFirebaseSDK(){
-  if(typeof firebase!=='undefined')return Promise.resolve();
-  return new Promise((resolve,reject)=>{
-    const s=document.createElement('script');
-    s.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';
-    s.onload=()=>{
-      const s2=document.createElement('script');
-      s2.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js';
-      s2.onload=resolve;
-      s2.onerror=reject;
-      document.head.appendChild(s2);
-    };
-    s.onerror=reject;
-    document.head.appendChild(s);
-  });
 }
 // ─────────────────────────────────────────────────────────────
 
